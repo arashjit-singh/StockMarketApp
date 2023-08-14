@@ -20,20 +20,16 @@ class CompanyInfoViewModel @Inject constructor(
     private var _uiState = MutableStateFlow(CompanyInfoState())
     val uiState = _uiState.asStateFlow()
 
-    fun onEvent(event: CompanyInfoEvent) {
-        when (event) {
-            is CompanyInfoEvent.UpdateSymbol -> {
-                viewModelScope.launch {
-                    val symbol = _uiState.value.symbol
-                    if (symbol.isBlank()) {
-                        _uiState.update {
-                            it.copy(symbol = event.symbol)
-                        }
-                        getCompanyDetails()
-                    }
-                }
+    init {
+        viewModelScope.launch {
+            val symbol = savedStateHandle.get<String>("symbol") ?: return@launch
+            _uiState.update {
+                it.copy(symbol = symbol)
             }
+            getCompanyDetails()
         }
+
+
     }
 
     private fun getCompanyDetails() {
