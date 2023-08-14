@@ -24,7 +24,8 @@ class IntraDayInfoParser(@IoDispatcher private val dispatcher: CoroutineDispatch
                 val dto = IntraDayInfoDto(timeStamp, close.toDouble())
                 dto.toIntraDayInfo()
             }.filter {
-                it.date.month == LocalDateTime.now().minusDays(1).month
+//                it.date.month == LocalDateTime.now().minusDays(1).month
+                it.date.dayOfWeek == LocalDateTime.now().minusDays(4).dayOfWeek
             }
                 .sortedBy {
                     it.date.hour
