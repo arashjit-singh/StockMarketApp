@@ -7,28 +7,23 @@ import com.pkg.stockmarketapp.domain.modal.CompanyListing
 
 fun CompanyListingEntity.toCompanyListing(): CompanyListing {
     return CompanyListing(
-        name = name,
-        symbol = symbol,
-        exchange = exchange
+        name = name, symbol = symbol, exchange = exchange
     )
 }
 
 fun CompanyListing.toCompanyEntity(): CompanyListingEntity {
     return CompanyListingEntity(
-        name = name,
-        symbol = symbol,
-        exchange = exchange
+        name = name, symbol = symbol, exchange = exchange
     )
 }
 
 fun CompanyDetailsDto.toCompanyDetails(): CompanyDetails {
     return CompanyDetails(
-        symbol = Symbol,
-        name = Name,
-        currency = Currency,
-        exchange = Exchange,
-        country = Country,
-        description = Description,
-        address = Address
+        symbol = symbol,
+        name = name,
+        description = description,
+        country = country,
+        address = address,
+        industry = industry
     )
 }
