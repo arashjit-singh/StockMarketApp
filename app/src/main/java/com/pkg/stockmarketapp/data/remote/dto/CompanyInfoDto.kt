@@ -2,17 +2,17 @@ package com.pkg.stockmarketapp.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class CompanyDetailsDto(
+data class CompanyInfoDto(
     @SerializedName("Symbol")
-    val symbol: String,
+    val symbol: String?,
     @SerializedName("Name")
-    val name: String,
+    val name: String?,
     @SerializedName("Description")
-    val description: String,
+    val description: String?,
     @SerializedName("Country")
-    val country: String,
+    val country: String?,
     @SerializedName("Address")
-    val address: String,
+    val address: String?,
     @SerializedName("Industry")
-    val industry: String,
+    val industry: String?,
 )

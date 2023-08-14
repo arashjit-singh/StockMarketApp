@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Room
 import com.pkg.stockmarketapp.data.csv.CompanyListingParser
 import com.pkg.stockmarketapp.data.csv.CsvParser
+import com.pkg.stockmarketapp.data.csv.IntraDayInfoParser
 import com.pkg.stockmarketapp.data.local.StockDatabase
 import com.pkg.stockmarketapp.data.remote.StockApi
 import com.pkg.stockmarketapp.data.repository.StockRepositoryImpl
 import com.pkg.stockmarketapp.domain.modal.CompanyListing
+import com.pkg.stockmarketapp.domain.modal.IntraDayInfo
 import com.pkg.stockmarketapp.domain.repository.StockRepository
 import com.pkg.stockmarketapp.util.Constants
 import dagger.Module
@@ -38,12 +40,14 @@ object AppModule {
         stockApi: StockApi,
         @IoDispatcher dispatcher: CoroutineDispatcher,
         csvParser: CsvParser<CompanyListing>,
+        intraDayParser: CsvParser<IntraDayInfo>,
     ): StockRepository {
         return StockRepositoryImpl(
             api = stockApi,
             db = stockDatabase,
             csvParser = csvParser,
-            dispatcher = dispatcher
+            dispatcher = dispatcher,
+            intraDayParser = intraDayParser
         )
     }
 
@@ -51,6 +55,12 @@ object AppModule {
     @Singleton
     fun provideCsvParser(@IoDispatcher dispatcher: CoroutineDispatcher): CsvParser<CompanyListing> {
         return CompanyListingParser(dispatcher)
+    }
+
+    @Provides
+    @Singleton
+    fun provideIntraDayCsvParser(@IoDispatcher dispatcher: CoroutineDispatcher): CsvParser<IntraDayInfo> {
+        return IntraDayInfoParser(dispatcher)
     }
 
 }

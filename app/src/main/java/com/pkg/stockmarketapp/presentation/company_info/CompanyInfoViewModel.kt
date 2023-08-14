@@ -7,6 +7,7 @@ import com.pkg.stockmarketapp.domain.repository.StockRepository
 import com.pkg.stockmarketapp.util.Constants.KEY_COMPANY_SYMBOL
 import com.pkg.stockmarketapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -22,46 +23,66 @@ class CompanyInfoViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            val symbol = savedStateHandle.get<String>(KEY_COMPANY_SYMBOL) ?: return@launch
-            _uiState.update {
-                it.copy(symbol = symbol)
-            }
-            getCompanyDetails()
-        }
+        getAllDetails()
     }
 
-    private fun getCompanyDetails() {
+    private fun getAllDetails() {
         viewModelScope.launch {
-            stockRepository.getCompanyDetails(_uiState.value.symbol).collect { result ->
-                when (result) {
-                    is Resource.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                error = result.message,
-                                isLoading = false
-                            )
-                        }
-                    }
+            val symbol = savedStateHandle.get<String>(KEY_COMPANY_SYMBOL) ?: return@launch
 
-                    is Resource.Loading -> {
-                        _uiState.update {
-                            it.copy(
-                                error = "",
-                                isLoading = true
-                            )
-                        }
-                    }
+            _uiState.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
 
-                    is Resource.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                companyInfo = result.data
-                            )
-                        }
+            val companyDetails = async {
+                stockRepository.getCompanyInfo(symbol)
+            }
+
+            val intraDayInfo = async {
+                stockRepository.getIntraDayInfo(symbol)
+            }
+
+            when (val result = companyDetails.await()) {
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            error = result.message, isLoading = false, companyInfo = null
+                        )
                     }
                 }
+
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            companyInfo = result.data, isLoading = false, error = null
+                        )
+                    }
+                }
+
+                else -> Unit
+            }
+
+
+            when (val result = intraDayInfo.await()) {
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            error = result.message, isLoading = false, stockInfo = emptyList()
+                        )
+                    }
+                }
+
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            stockInfo = result.data ?: emptyList(), isLoading = false, error = null
+                        )
+                    }
+                }
+
+                else -> Unit
             }
         }
     }
