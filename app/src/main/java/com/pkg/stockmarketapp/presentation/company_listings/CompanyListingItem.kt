@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pkg.stockmarketapp.domain.modal.CompanyListing
@@ -24,11 +23,12 @@ import com.pkg.stockmarketapp.domain.modal.CompanyListing
 fun CompanyListingItem(
     modifier: Modifier = Modifier,
     company: CompanyListing,
+    onCompanyListingClick: () -> Unit,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickable { onCompanyListingClick() }
             .padding(7.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -55,17 +55,5 @@ fun CompanyListingItem(
         Spacer(modifier = Modifier.height(8.dp))
         Divider()
     }
-}
-
-@Composable
-@Preview
-fun PreviewCompanyListingItem() {
-    CompanyListingItem(
-        company = CompanyListing(
-            symbol = "A",
-            name = "Alocal CorpAlocal",
-            exchange = "Nyse"
-        )
-    )
 }
 

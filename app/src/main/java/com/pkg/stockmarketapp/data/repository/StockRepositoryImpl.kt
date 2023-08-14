@@ -3,10 +3,12 @@ package com.pkg.stockmarketapp.data.repository
 import androidx.room.withTransaction
 import com.pkg.stockmarketapp.data.csv.CsvParser
 import com.pkg.stockmarketapp.data.local.StockDatabase
+import com.pkg.stockmarketapp.data.mapper.toCompanyDetails
 import com.pkg.stockmarketapp.data.mapper.toCompanyEntity
 import com.pkg.stockmarketapp.data.mapper.toCompanyListing
 import com.pkg.stockmarketapp.data.remote.StockApi
 import com.pkg.stockmarketapp.di.IoDispatcher
+import com.pkg.stockmarketapp.domain.modal.CompanyDetails
 import com.pkg.stockmarketapp.domain.modal.CompanyListing
 import com.pkg.stockmarketapp.domain.repository.StockRepository
 import com.pkg.stockmarketapp.util.Resource
@@ -26,46 +28,67 @@ class StockRepositoryImpl(
     override fun getCompanyListing(
         query: String,
         fetchFromRemote: Boolean,
-    ): Flow<Resource<List<CompanyListing>>> =
-        flow {
-            val stockDao = db.provideDao()
-            emit(Resource.Loading())
-            val companyListing = stockDao.searchCompanyListing(query)
-            emit(Resource.Success(data = companyListing.map {
+    ): Flow<Resource<List<CompanyListing>>> = flow {
+        val stockDao = db.provideDao()
+        emit(Resource.Loading())
+        val companyListing = stockDao.searchCompanyListing(query)
+        emit(Resource.Success(data = companyListing.map {
+            it.toCompanyListing()
+        }))
+
+        val isDbEmpty = companyListing.isEmpty() && query.isBlank()
+        val shouldJustLoadFromCache = !isDbEmpty && !fetchFromRemote
+
+        if (shouldJustLoadFromCache) {
+            return@flow
+        }
+
+        val remoteListings = try {
+            val response = api.getListings()
+            csvParser.parse(response.byteStream())
+        } catch (e: IOException) {
+            e.printStackTrace()
+            emit(Resource.Error("Couldn't load data"))
+            null
+        } catch (e: HttpException) {
+            e.printStackTrace()
+            emit(Resource.Error("Couldn't load data"))
+            null
+        }
+
+        remoteListings?.let {
+            db.withTransaction {
+                stockDao.clearTable()
+                stockDao.insertCompany(it.map { item ->
+                    item.toCompanyEntity()
+                })
+            }
+            emit(Resource.Success(data = stockDao.searchCompanyListing("").map {
                 it.toCompanyListing()
             }))
+        }
 
-            val isDbEmpty = companyListing.isEmpty() && query.isBlank()
-            val shouldJustLoadFromCache = !isDbEmpty && !fetchFromRemote
+    }.flowOn(dispatcher)
 
-            if (shouldJustLoadFromCache) {
-                return@flow
-            }
+    override fun getCompanyDetails(symbol: String): Flow<Resource<CompanyDetails>> = flow {
+        emit(Resource.Loading())
 
-            val remoteListings = try {
-                val response = api.getListings()
-                csvParser.parse(response.byteStream())
-            } catch (e: IOException) {
-                e.printStackTrace()
-                emit(Resource.Error("Couldn't load data"))
-                null
-            } catch (e: HttpException) {
-                e.printStackTrace()
-                emit(Resource.Error("Couldn't load data"))
-                null
-            }
+        val result = try {
+            api.getCompanyDetails(symbol = symbol).toCompanyDetails()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            emit(Resource.Error("Couldn't load data"))
+            null
+        } catch (e: HttpException) {
+            e.printStackTrace()
+            emit(Resource.Error("Couldn't load data"))
+            null
+        }
 
-            remoteListings?.let {
-                db.withTransaction {
-                    stockDao.clearTable()
-                    stockDao.insertCompany(it.map { item ->
-                        item.toCompanyEntity()
-                    })
-                }
-                emit(Resource.Success(data = stockDao.searchCompanyListing("").map {
-                    it.toCompanyListing()
-                }))
-            }
+        result?.let {
+            return@flow emit(Resource.Success(data = result))
+        }
 
-        }.flowOn(dispatcher)
+        return@flow
+    }.flowOn(dispatcher)
 }

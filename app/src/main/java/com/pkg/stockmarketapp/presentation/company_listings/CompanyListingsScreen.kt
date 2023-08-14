@@ -19,12 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.pkg.stockmarketapp.util.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompanyListingScreen(
     modifier: Modifier = Modifier,
     listingViewModel: CompanyListingViewModel = hiltViewModel(),
+    navHostController: NavHostController,
 ) {
     val state = listingViewModel.uiState.collectAsState()
 
@@ -42,7 +45,9 @@ fun CompanyListingScreen(
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(state.value.companies) {
-                CompanyListingItem(company = it)
+                CompanyListingItem(company = it) {
+                    navHostController.navigate(Constants.ROUTE_COMPANY_DETAIL + it.symbol)
+                }
             }
         }
 

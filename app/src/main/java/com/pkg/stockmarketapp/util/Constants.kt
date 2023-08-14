@@ -5,5 +5,7 @@ object Constants {
     const val DATABASE_NAME = "StockDb"
 
     const val ROUTE_COMPANY_LIST = "homeListing"
-    const val ROUTE_COMPANY_DETAIL = "companyDetail"
+    const val ROUTE_COMPANY_DETAIL = "companyDetail/"
+
+    const val KEY_COMPANY_SYMBOL = "symbol"
 }
