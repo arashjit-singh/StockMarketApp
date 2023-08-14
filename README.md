@@ -12,7 +12,7 @@
   6. Retrofit for API calling
 
 # Application Screenshots
-<img src="https://github.com/arashjit-singh/StockMarketApp/blob/main/screenshots/HomeListing.png" width=50% height=50%>
+<img src="https://github.com/arashjit-singh/StockMarketApp/blob/main/screenshots/HomeListingPage.png" width=50% height=50%>
 <img src="https://github.com/arashjit-singh/StockMarketApp/blob/main/screenshots/CompanyInfoScreen.png" width=50% height=50%>
 
  
