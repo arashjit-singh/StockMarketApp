@@ -43,8 +43,7 @@ class MainActivity : ComponentActivity() {
                                 type = NavType.StringType
                             })
                         ) {
-                            val symbol = it.arguments?.getString(KEY_COMPANY_SYMBOL) ?: ""
-                            CompanyInfoScreen(symbol = symbol)
+                            CompanyInfoScreen()
                         }
                     }
                 }

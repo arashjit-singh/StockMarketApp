@@ -14,7 +14,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun CompanyInfoScreen(
     modifier: Modifier = Modifier,
-    symbol: String,
     detailViewModel: CompanyInfoViewModel = hiltViewModel(),
 ) {
 

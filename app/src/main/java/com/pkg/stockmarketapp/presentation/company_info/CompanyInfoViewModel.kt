@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pkg.stockmarketapp.domain.repository.StockRepository
+import com.pkg.stockmarketapp.util.Constants.KEY_COMPANY_SYMBOL
 import com.pkg.stockmarketapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,14 +23,12 @@ class CompanyInfoViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val symbol = savedStateHandle.get<String>("symbol") ?: return@launch
+            val symbol = savedStateHandle.get<String>(KEY_COMPANY_SYMBOL) ?: return@launch
             _uiState.update {
                 it.copy(symbol = symbol)
             }
             getCompanyDetails()
         }
-
-
     }
 
     private fun getCompanyDetails() {
