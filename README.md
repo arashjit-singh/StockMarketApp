@@ -1,5 +1,5 @@
 # StockMarketApp
-Stock Marret app that pull stock list from alphavantage. Built entirely with Jetpack compose with best android practices.
+Stock Market app that pull stock list from alphavantage. Built entirely with Jetpack compose with best android practices.
 MVVM architecture, Coroutines and Flows, SOLID and clean architecture.
 
 # Installation
